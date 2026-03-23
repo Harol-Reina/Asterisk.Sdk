@@ -629,20 +629,21 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 
 **Objetivo:** Unificar la visualización de flujo de llamadas, mejorar la legibilidad del dialplan y rutas outbound, agregar cross-references entre entidades, y proveer un debugger de dialplan visual. Spec: `docs/superpowers/specs/2026-03-23-call-flow-ux-design.md`
 
-**Phase 1 — Foundation:** ⏳ En progreso
+**Phase 1 — Foundation:** ✅ Completado (2026-03-23)
 - CallFlowService (graph building, health warnings P1, cross-references, cache)
 - DialplanHumanizer, DialPatternHumanizer, NumberManipulator helpers
 - `/call-flow` page: overview dashboard + two-panel inbound flow
 - Nav reorganization: Call Flow en PBX Management, Dialplan movido a System
 
-**Phase 2 — Call Tracer:** ⏳ Planificado
-- Call Tracer con date/time picker + override mode selector
+**Phase 2 — Call Tracer:** ✅ Completado (2026-03-23)
+- Call Tracer con date/time picker + override mode selector (Live/None/AllOpen/AllClosed)
 - Debugger step-through con Inspect dialplan lines por paso
+- Asterisk pattern matching (_NXZ. syntax)
 - `/dialplan` mejorado: badges de tipo por contexto, humanización de apps, links bidireccionales
 
-**Phase 3 — Routes & Cross-refs:** ⏳ Planificado
+**Phase 3 — Routes & Cross-refs:** ✅ Completado (2026-03-23)
 - Outbound routes UX: pattern humanizer, trunk health dots, failover labels, manipulation preview
-- Cross-references en TC, IVR, Queues, Extensions ("Usado por: ...")
+- Cross-references en TC, IVR ("Usado por: ...", "Referenciado por: ...")
 - Inline flow summary en inbound routes
 - Warning "Not referenced" en entidades huérfanas
 
