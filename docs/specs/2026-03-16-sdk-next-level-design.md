@@ -647,11 +647,28 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 - Inline flow summary en inbound routes
 - Warning "Not referenced" en entidades huérfanas
 
-**Future:**
+**Future (v1 — SDK Demo/Showcase):**
 - Health warnings P2: patterns solapados, loops IVR, extensiones no registradas, TC sin rangos
 - Health warnings P3: gaps horarios en TC, strategy inadecuada, greeting files inexistentes
 - Outbound flow visualization en Call Flow
 - Export call flow como diagrama/PDF
+- E2E tests para Call Flow + Tracer + dialplan pages
+
+**Future (v2 — SMB Deployable Product):**
+- CDR persistente en PostgreSQL + página de búsqueda/filtro por fecha
+- Backup/Restore: export/import JSON de toda la configuración
+- 2 roles: Admin (full access) + Operator (dashboards + call control, no config)
+- Reportes básicos: llamadas por día/semana, SLA de colas, top agentes
+
+**Future (v3 — Enterprise / SaaS):**
+- RBAC completo con usuarios en DB, roles custom, scoped por queues
+- Audit log: quién cambió qué, cuándo, valor anterior/nuevo
+- REST API + webhooks para integraciones externas
+- Email alerts (trunk caído, cola vacía, TC override olvidado)
+- Reportes históricos avanzados: tendencias, drill-down, export programado
+- Setup wizard ("5 pasos para tu primera llamada")
+- Bulk operations (importar extensiones de CSV)
+- HA / load balancing guidance
 
 ---
 
