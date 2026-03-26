@@ -2,7 +2,7 @@
 
 **Autor:** Harol Reina
 **Fecha:** 2026-03-16
-**Estado:** En Progreso — Fase 7 API Completeness ✅ (v1.2.0-v1.4.0 publicados 2026-03-22), PbxAdmin Dialplan Discovery ✅ (2026-03-22)
+**Estado:** Estable v1.5.0 — Fases 1-7 ✅ completas, Quality Sprint ✅ (SourceLink, analyzers, PublicAPI.Shipped.txt, 1,379 unit tests), PbxAdmin separado a repo propio (2026-03-24)
 **Objetivo:** Definir la estrategia de evolución del SDK hacia una plataforma de telecomunicaciones líder con modelo open-core (MIT + PRO comercial).
 
 ---
@@ -33,13 +33,14 @@ Un SDK que permite construir contact centers, CPaaS, voice bots, IVR avanzados y
 
 | Capa | Componente | Evidencia |
 |------|-----------|-----------|
-| AMI | Connection, Protocol Parser, Event Pump, Correlation, Source Generators, Metrics, Thread Safety | Pipelines zero-copy, AmiStringPool (941 keys), 4 source generators AOT, SemaphoreSlim write lock, ConcurrentDictionary correlation, 193 tests |
-| AGI | FastAgiServer, AgiChannel, Mapping Strategies, 54 Commands | Pipelines, 3 estrategias thread-safe, cobertura completa de comandos, AgiHostedService existente, 36 tests |
-| ARI | AriClient, WebSocket, JSON, Audio Subsystem, 8 Resources (including DeviceStates) | Source-generated JSON, 46 event types, AudioSocket+WebSocket, reconnect con backoff, 114 tests |
-| Live | AsteriskServer, ChannelManager, QueueManager, AgentManager, ServerPool | Dual indices O(1), ConcurrentDictionary, per-entity Lock, copy-on-write observers, reconnect+reload, 31 tests |
+| AMI | Connection, Protocol Parser, Event Pump, Correlation, Source Generators, Metrics, Thread Safety | Pipelines zero-copy, AmiStringPool, 4 source generators AOT, SemaphoreSlim write lock, ConcurrentDictionary correlation, 148 actions, 278 events, 633 tests |
+| AGI | FastAgiServer, AgiChannel, Mapping Strategies, 54 Commands | Pipelines, 3 estrategias thread-safe, cobertura completa de comandos, AgiHostedService, 180 tests |
+| ARI | AriClient, WebSocket, JSON, Audio Subsystem, 10 Resources | Source-generated JSON (~90 models), 46 event types, 94 endpoints, AudioSocket+WebSocket, reconnect con backoff, 306 tests |
+| Live | AsteriskServer, ChannelManager, QueueManager, AgentManager, ServerPool | Dual indices O(1), ConcurrentDictionary, per-entity Lock, copy-on-write observers, reconnect+reload |
+| VoiceAi | Audio, AudioSocket, VoiceAi, Stt, Tts, OpenAiRealtime, Testing | Polyphase FIR resampler, VAD, dual-loop pipeline, barge-in, 4 STT + 2 TTS providers, 223 tests |
 | Core | Interfaces, Attributes, Enums, Exceptions | Zero reflection, async-first, clean hierarchy |
 | Hosting | AddAsterisk(), Options Validation | DI correcto, [OptionsValidator] AOT-safe |
-| Infra | Build, Packages, EditorConfig, Benchmarks | TreatWarningsAsErrors, 516 tests, 12 benchmarks, 0 trim warnings |
+| Infra | Build, Packages, EditorConfig, Benchmarks, Quality Analyzers | TreatWarningsAsErrors, SourceLink, deterministic builds, PackageValidation, PublicAPI.Shipped.txt, 0 trim warnings |
 
 ### Needs Maturing
 
@@ -539,29 +540,34 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 - ✅ `Asterisk.Sdk.Pro.AgentAssist.Storage.Postgres` — 3 Dapper stores, 3 tables (`agent_assist_sessions`, `suggestion_log`, `compliance_alerts`), migration SQL `001_AgentAssist_Schema.sql`. 15 integration tests (require PostgreSQL).
 - ✅ 45 tests total, 25 commits, 0 warnings, AOT-compatible
 
-**Sprint 27 (2 sem) — Pro.CallAnalytics AI:** ⏳ Pendiente
+**Sprint 27 (2 sem) — Pro.CallAnalytics AI:** 📦 Gestionado en repo `Asterisk.Sdk.Pro`
 - `Asterisk.Sdk.Pro.CallAnalytics` — post-call AI processing
-- LLM-powered call summarization (integrates with Pro.EventStore)
-- Automated QA scoring against configurable rubrics
-- Compliance flag detection (PCI, disclosure requirements)
+- LLM-powered call summarization, automated QA scoring, compliance flags
 
 **Fase 5 Paquetes (entregados a 2026-03-20):**
 - MIT ✅: `Asterisk.Sdk.Audio`, `Asterisk.Sdk.VoiceAi`, `Asterisk.Sdk.VoiceAi.AudioSocket`, `Asterisk.Sdk.VoiceAi.Stt`, `Asterisk.Sdk.VoiceAi.Tts`, `Asterisk.Sdk.VoiceAi.OpenAiRealtime`, `Asterisk.Sdk.VoiceAi.Testing`
-- PRO ✅ Parcial: `Pro.AgentAssist` + `Pro.AgentAssist.Storage.Postgres` — completados 2026-03-20 (45 tests, tag v0.3.0-beta)
-- PRO ⏳: `Pro.CallAnalytics` — pendiente Sprint 27
-- Entregados: 7 paquetes MIT + 2 paquetes PRO nuevos (total 22 paquetes MIT+Pro combinados)
+- PRO ✅: `Pro.AgentAssist` + `Pro.AgentAssist.Storage.Postgres` — completados 2026-03-20 (45 tests, tag v0.3.0-beta)
+- PRO 📦: `Pro.CallAnalytics` — gestionado en repo Pro
+- Entregados MIT: 7 paquetes VoiceAi nuevos
 
 ### Fase 6: Polish + v1.0 (mes 18–20)
 
 **Objetivo:** Estabilizar API pública, publicar documentación oficial y benchmarks, implementar mecanismo de licenciamiento PRO, publicar `v1.0.0` MIT y `v1.0.0-pro` PRO.
 
-**Sprint 28-29 (4 sem) — Polish + v1.0:**
-- MIT v1.0.0: API review, docs
-- MIT benchmarks públicos vs Go/Java: AMI throughput, AGI latency, ARI WebSocket, Session Engine event dispatch — publicar en README y docs site
-- PRO v1.0.0-pro: API review, integration tests (Docker E2E)
-- Documentation site
-- Licensing mechanism
-- Legacy dialer migration guide
+**MIT v1.0.0:** ✅ Completado (2026-03-21)
+- API review, CHANGELOG.md, SECURITY.md, per-package READMEs, 12 examples
+- Publicado en nuget.org (17 paquetes)
+
+**v1.5.0 Quality Sprint:** ✅ Completado (2026-03-24)
+- Code quality analyzers (Layers 1-3: Roslyn, Threading, API surface)
+- PublicAPI.Shipped.txt populated con API surface v1.5.0
+- SourceLink, deterministic builds, PackageValidation baseline
+- Coverage push: Ami 82%, Agi 86%, Live 81.6%, Ari 79.4%
+- 1,379 unit tests + 640 functional tests
+- PbxAdmin separado a repo propio (`Asterisk.Sdk.PbxAdmin`)
+
+**PRO v1.0.0-pro:** 📦 Gestionado en repo `Asterisk.Sdk.Pro`
+- API review, Docker E2E integration tests, licensing mechanism
 
 ### Release Timeline
 
@@ -578,22 +584,23 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 | `v1.2.0` MIT | Sprint A: AMI PJSIP + Bridge + Transfer (20 actions) | — | ✅ Publicado 2026-03-22 |
 | `v1.3.0` MIT | Sprint B: ARI Completeness (26 endpoints, 11 models, 2 new resources) | — | ✅ Publicado 2026-03-22 |
 | `v1.4.0` MIT | Sprint C: AMI Misc + AudioSocket Ast23 (11 actions + 8 high-rate types) | — | ✅ Publicado 2026-03-22 |
-| `v1.0.0-pro` PRO | API review, integration tests, licensing | — | Pendiente (Sprint 28-29) |
+| `v1.5.0` MIT | Quality Sprint: analyzers, SourceLink, PublicAPI, coverage push | — | ✅ Publicado 2026-03-24 |
+| `v1.0.0-pro` PRO | API review, integration tests, licensing | — | 📦 Gestionado en repo Pro |
 
 ### Fase 7: API Completeness — Asterisk 18-23 Full Coverage (post-v1.0)
 
 **Objetivo:** Cubrir el 100% de la API pública de Asterisk (AMI Actions, ARI Endpoints, ARI Models). Compatibilidad explícita con Asterisk 18, 20, 22 y 23. Plan completo: `docs/superpowers/plans/2026-03-22-api-completeness-plan.md`
 
-**Gap Analysis (2026-03-22):**
+**Gap Analysis (actualizado 2026-03-26):**
 
-| Capa | Asterisk | SDK v1.1.0 | Cobertura |
+| Capa | Asterisk | SDK v1.5.0 | Cobertura |
 |------|----------|-----------|-----------|
-| AMI Actions | 152 | 118 | 78% |
-| AMI Events | 180 | 261 | 145% (legacy+compat) |
+| AMI Actions | 152 | 148 | 97% |
+| AMI Events | 180 | 278 | 154% (legacy+compat) |
 | AGI Commands | 47 | 54 | 100%+ |
-| ARI Endpoints | 98 | ~44 | 45% |
+| ARI Endpoints | 98 | 94 | 96% |
 | ARI Events | 46 | 46 | 100% |
-| ARI Models | 27 | 16 | 59% |
+| ARI Models | 27 | 27 | 100% |
 
 **Sprint A (v1.2.0) — AMI PJSIP + Bridge + Transfer:** ✅ Completado (2026-03-22)
 - 11 PJSIP actions (ShowAors, ShowAuths, ShowRegistrations, Register, Unregister, Qualify, Hangup)
@@ -647,45 +654,29 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 - Inline flow summary en inbound routes
 - Warning "Not referenced" en entidades huérfanas
 
-**Future (v1 — SDK Demo/Showcase):**
-- Health warnings P2: patterns solapados, loops IVR, extensiones no registradas, TC sin rangos
-- Health warnings P3: gaps horarios en TC, strategy inadecuada, greeting files inexistentes
-- Outbound flow visualization en Call Flow
-- Export call flow como diagrama/PDF
-- E2E tests para Call Flow + Tracer + dialplan pages
+**PbxAdmin — Separado a repo propio (2026-03-24):**
 
-**Future (v2 — SMB Deployable Product):**
-- CDR persistente en PostgreSQL + página de búsqueda/filtro por fecha
-- Backup/Restore: export/import JSON de toda la configuración
-- 2 roles: Admin (full access) + Operator (dashboards + call control, no config)
-- Reportes básicos: llamadas por día/semana, SLA de colas, top agentes
-
-**Future (v3 — Enterprise / SaaS):**
-- RBAC completo con usuarios en DB, roles custom, scoped por queues
-- Audit log: quién cambió qué, cuándo, valor anterior/nuevo
-- REST API + webhooks para integraciones externas
-- Email alerts (trunk caído, cola vacía, TC override olvidado)
-- Reportes históricos avanzados: tendencias, drill-down, export programado
-- Setup wizard ("5 pasos para tu primera llamada")
-- Bulk operations (importar extensiones de CSV)
-- HA / load balancing guidance
+> PbxAdmin se gestiona desde `github.com/Harol-Reina/Asterisk.Sdk.PbxAdmin`. Consume SDK v1.5.0 via NuGet.
+> Las fases Future (v1, v2, v3) se planifican y ejecutan desde ese repositorio.
 
 ---
 
 ## 7. Métricas de Éxito
 
-### MIT (12 meses)
-- ✅ Publicado en nuget.org: v0.2.0-beta → v0.5.0-beta → v1.0.0 → v1.1.0
+### MIT (actualizado 2026-03-26)
+- ✅ Publicado en nuget.org: v0.2.0-beta → v0.5.0-beta → v1.0.0 → v1.1.0 → v1.2.0 → v1.3.0 → v1.4.0 → v1.5.0
+- ✅ 17 paquetes NuGet (9 Core + 7 VoiceAi + 1 SourceGenerators)
 - ✅ 12 examples funcionales (superó objetivo de 3)
-- ✅ 0 trim warnings AOT
+- ✅ 0 trim warnings AOT, 0 build warnings
+- ✅ Quality tooling: SourceLink, deterministic builds, PackageValidation, PublicAPI.Shipped.txt, code analyzers (Layers 1-3)
 - ⏳ Benchmarks públicos competitivos vs Go/Java
 - ✅ Session Engine funcional con 9 domain events + IObservable
-- ✅ Voice AI stack completo: AudioSocket + STT/TTS providers + OpenAI Realtime bridge (7 paquetes, ~196 tests, Sprint 21-24)
-- ✅ 1,066 unit tests MIT, 255 PbxAdmin, 70 E2E (2026-03-22)
-- ✅ API Completeness: 97% de APIs Asterisk 18-23 (Fase 7, Sprints A-B-C → v1.2.0-v1.4.0, publicados 2026-03-22)
-- ✅ PbxAdmin Dialplan Discovery: AMI-based context browser, editor, include tree, context dropdowns (2026-03-22, branch fix/dialplan-context-routing)
+- ✅ Voice AI stack completo: AudioSocket + STT/TTS providers + OpenAI Realtime bridge (7 paquetes, Sprint 21-24)
+- ✅ 1,379 unit tests MIT + 640 functional tests (2026-03-26)
+- ✅ API Completeness: ~97% de APIs Asterisk 18-23 (148 AMI actions, 278 events, 94 ARI endpoints, 46 ARI event types)
+- ✅ PbxAdmin separado a repo propio (2026-03-24), consume SDK v1.5.0 via NuGet
 
-### PRO (12 meses)
+### PRO (gestionado en repo `Asterisk.Sdk.Pro`)
 - ✅ Predictive dialer operativo con Erlang-C pacing (5 modos, 3 engines)
 - ✅ Cluster support multi-nodo (weighted routing, failover, drain)
 - ✅ EventStore con replay funcional (event log + CDR projection)
@@ -693,9 +684,7 @@ MIT funciona completamente solo con implementaciones default (single-node, in-me
 - ✅ MultiTenant con AsyncLocal isolation
 - ✅ Skill-based routing (inverted index, priority, overflow, fairness scorers)
 - ✅ AgentAssist operativo (dual-stream STT, suggestions, sentiment, compliance whisper — Sprint 25-26, 45 tests, v0.3.0-beta)
-- ⏳ CallAnalytics AI: LLM summarization, QA scoring, compliance flags (Sprint 27)
-- ⏳ Legacy dialer migration completada
-- ⏳ Al menos 1 cliente externo usando PRO
+- 📦 CallAnalytics AI, v1.0.0-pro release, legacy migration — pendientes en repo Pro
 
 ---
 
